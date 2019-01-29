@@ -4,20 +4,35 @@ import web3 from '../ethereum/web3';
 import Campaign from '../ethereum/campaign';
 
 class RequestRow extends Component {
-   onApprove = async () => {
-      const campaign = Campaign(this.props.address);
-      const accounts = await web3.eth.getAccounts();
-      await campaign.methods.approveRequest(this.props.id).send({
-         from: accounts[0]
-      });
+   state = {
+      approving: false,
+      finalizing: false
    };
 
-   onFinalize = async () => {
-      const campaign = Campaign(this.props.address);
-      const accounts = await web3.eth.getAccounts();
-      await campaign.methods.finalizeRequest(this.props.id).send({
-         from: accounts[0]
-      });
+   onApprove = async (e) => {
+      e.preventDefault();
+      this.setState({ approving: true });
+      try {
+         const campaign = Campaign(this.props.address);
+         const accounts = await web3.eth.getAccounts();
+         await campaign.methods.approveRequest(this.props.id).send({
+            from: accounts[0]
+         });
+      } catch (err) { }
+      this.setState({ approving: false });
+   };
+
+   onFinalize = async (e) => {
+      e.preventDefault();
+      this.setState({ finalizing: true });
+      try {
+         const campaign = Campaign(this.props.address);
+         const accounts = await web3.eth.getAccounts();
+         await campaign.methods.finalizeRequest(this.props.id).send({
+            from: accounts[0]
+         });
+      } catch (err) { }
+      this.setState({ finalizing: false });
    };
 
    render() {
@@ -33,14 +48,17 @@ class RequestRow extends Component {
             <Cell>{request.approvalCount}/{approversCount}</Cell>
             <Cell>
                {request.complete ? null : (
-                  <Button color="green" basic onClick={this.onApprove}>
+                  <Button loading={this.state.approving}
+                     color="green" basic onClick={this.onApprove}>
                      Approve
                </Button>
                )}
             </Cell>
             <Cell>
                {request.complete ? null : (
-                  <Button color="teal" basic onClick={this.onFinalize} disabled={!readyToFinalize}>
+                  <Button loading={this.state.finalizing}
+                     color="teal" basic onClick={this.onFinalize}
+                     disabled={!readyToFinalize}>
                      Finalize
                </Button>
                )}
