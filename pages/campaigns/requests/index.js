@@ -4,6 +4,7 @@ import { Link } from '../../../routes';
 import Layout from '../../../components/Layout';
 import Campaign from '../../../ethereum/campaign';
 import RequestRow from '../../../components/RequestRow';
+import web3 from '../../../ethereum/web3';
 
 class RequestIndex extends Component {
    static async getInitialProps(props) {
